@@ -1,0 +1,3 @@
+[submodule "Dependencies/Cala"]
+	path = Dependencies/Cala
+	url = https://github.com/dominikcondric/Cala.git
