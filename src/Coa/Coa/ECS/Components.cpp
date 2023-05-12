@@ -12,9 +12,10 @@ namespace Coa {
     }
 
 	MeshComponent::MeshComponent(MeshComponent &&other) noexcept
-		: mesh(std::move(other.mesh)), lightened(other.lightened), material(other.material), 
-		modelPath(std::move(modelPath))
+		: mesh(std::move(other.mesh)), lightened(other.lightened), material(other.material)
 	{
+		if (!modelPath.empty())
+			modelPath = std::move(other.modelPath);
 	}
 
 	MeshComponent &MeshComponent::operator=(MeshComponent&& other) noexcept
@@ -22,7 +23,8 @@ namespace Coa {
 		mesh = std::move(other.mesh);
 		lightened = other.lightened;
 		material = other.material;
-		modelPath = std::move(modelPath);
+		if (!modelPath.empty())
+			modelPath = std::move(other.modelPath);
 		return *this;
 	}
 

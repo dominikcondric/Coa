@@ -101,5 +101,7 @@ void DemoApplication::setInitialScene()
         t.translate(glm::ballRand(20.f)).scale(glm::linearRand(0.5f, 2.f));
     }
 
-    engine.addSystem(new RenderingSystem(api.get()));
+    RenderingSystem* renderingSystem = new RenderingSystem(api.get());
+    renderingSystem->setShadows(false);
+    engine.addSystem(renderingSystem);
 }

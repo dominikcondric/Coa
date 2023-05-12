@@ -10,6 +10,17 @@ namespace Coa {
         RenderingSystem(Cala::GraphicsAPI* const _api, Cala::Framebuffer* _renderingTarget = nullptr);
         ~RenderingSystem() override = default;
         void run(Scene& scene) override;
+        void setShadows(bool shadows);
+
+    private:
+        struct MaterialCoefficients {
+            float ambient;
+            float diffuse;
+            float specular;
+            float shininess;
+        };
+
+        MaterialCoefficients generateMaterialCoefficents(Coa::MeshComponent::Material material);
 
     private:
         Cala::GraphicsAPI* const api;

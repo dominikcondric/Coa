@@ -52,19 +52,31 @@ namespace Coa {
             glm::vec4 color(1.f);
             if (scene.hasComponent<ColorComponent>(e))
                 color = scene.getComponent<ColorComponent>(e).color;
+
             Cala::Texture* diffuseMap = nullptr;
+            Cala::Texture* specularMap = nullptr;
+            Cala::Texture* normalMap = nullptr;
+
             if (scene.hasComponent<TextureComponent>(e))
             {
                 TextureComponent& texComp = scene.getComponent<TextureComponent>(e);
-                diffuseMap = &texComp.diffuseMap;
+                if (!texComp.diffuseMapPath.empty())
+                    diffuseMap = &texComp.diffuseMap;
+
+                if (!texComp.specularMapPath.empty())
+                    specularMap = &texComp.specularMap;
+
+                if (!texComp.normalMapPath.empty())
+                    normalMap = &texComp.normalMap;
             }
-            
 
             if (renderingComp.lightened)
             {
+                MaterialCoefficients materialCoefficients = generateMaterialCoefficents(renderingComp.material);
                 lightRenderer.pushRenderable(Cala::LightRenderer::Renderable(
                     renderingComp.mesh, transformComp.transformation, color,
-                    diffuseMap, nullptr, nullptr, 0.1f, 0.9f, 0.8f, 30.f
+                    diffuseMap, nullptr, nullptr, materialCoefficients.ambient,
+                    materialCoefficients.diffuse, materialCoefficients.specular, materialCoefficients.shininess
                 ));
             }
             else
@@ -78,5 +90,40 @@ namespace Coa {
         simpleRenderer.render(api, renderingTarget);
         lightRenderer.render(api, renderingTarget);
         skyboxRenderer.render(api, renderingTarget);
+    }
+    
+    void RenderingSystem::setShadows(bool shadows)
+    {
+        lightRenderer.shadows = shadows;
+    }
+
+    RenderingSystem::MaterialCoefficients RenderingSystem::generateMaterialCoefficents(Coa::MeshComponent::Material material)
+    {
+        MaterialCoefficients coefficients;
+        switch (material)
+        {
+        case Coa::MeshComponent::Material::Plastic:
+            coefficients.ambient = 0.f;
+            coefficients.diffuse = 0.55f;
+            coefficients.specular = 0.7f;
+            coefficients.shininess = 40.f;
+            break;
+        
+        case Coa::MeshComponent::Material::Metal:
+            coefficients.ambient = 0.1f;
+            coefficients.diffuse = 0.6f;
+            coefficients.specular = 0.94f;
+            coefficients.shininess = 100.f;
+            break;
+
+        case Coa::MeshComponent::Material::Fabric:
+            coefficients.ambient = 0.f;
+            coefficients.diffuse = 0.7f;
+            coefficients.specular = 0.4f;
+            coefficients.shininess = 5.f;
+            break;
+        }
+
+        return coefficients;
     }
 }

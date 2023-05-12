@@ -5,10 +5,10 @@ set(coa_src_files
     ECS/ConsistentComponentVector.h
     ECS/Entity.h 
     ECS/Entity.cpp
-    ECS/IterableVector.h
     ECS/Scene.cpp
     ECS/Scene.h
     
+    Utility/IterableVector.h
     Utility/ConsistentVector.h
 
     Systems/ISystem.h Systems/ISystem.cpp

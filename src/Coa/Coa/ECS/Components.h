@@ -64,7 +64,7 @@ namespace Coa {
 		MeshComponent& operator=(MeshComponent&& other) noexcept;
 
 		Cala::Mesh mesh;
-		std::string_view modelPath;
+		std::string modelPath;
 		bool lightened{ true };
 		Material material;
 	};
@@ -85,13 +85,13 @@ namespace Coa {
 		~TextureComponent() override = default;
 
 		Cala::Texture diffuseMap;
-		std::string_view diffuseMapPath;
+		std::string diffuseMapPath;
 
 		Cala::Texture specularMap;
-		std::string_view specularMapPath;
+		std::string specularMapPath;
 
 		Cala::Texture normalMap;
-		std::string_view normalMapPath;
+		std::string normalMapPath;
 	};
 
 	struct CameraComponent : public Component {
