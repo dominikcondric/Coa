@@ -91,10 +91,11 @@ void DemoApplication::setInitialScene()
 
     Entity sphereEntity = scene.addEntity("first sphere");
     sphereEntity.addComponent<MeshComponent>(Cala::Model().loadSphere());
+    sphereEntity.getComponent<TransformComponent>().transformation.translate(glm::vec3(10.f, 10.f, 0.f));
 
     for (int i = 0; i < 30; ++i)
     {
-        Entity e = scene.addEntity();
+        Entity e = scene.addEntity("", sphereEntity.getEntityID());
         e.shareComponent<MeshComponent>(sphereEntity);
         e.addComponent<ColorComponent>(glm::vec4(glm::abs(glm::ballRand(1.f)), 1.f));
         Cala::Transformation& t = e.getComponent<TransformComponent>().transformation;

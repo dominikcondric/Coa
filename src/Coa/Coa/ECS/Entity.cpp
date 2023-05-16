@@ -13,4 +13,14 @@ namespace Coa {
         *this = other;
         return *this;
     }
+    
+    Entity Entity::getParent() const
+    {
+        return Entity(scene, scene->getEntityParent(entityID));
+    }
+
+    const std::unordered_set<EntityID>& Entity::getChildren() const
+    {
+        return scene->getEntityChildren(entityID);
+    }
 }

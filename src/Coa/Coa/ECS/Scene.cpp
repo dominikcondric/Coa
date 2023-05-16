@@ -6,7 +6,7 @@
 #include <iostream>
 
 namespace Coa {
-	Entity Scene::addEntity(const std::string& entTag)
+	Entity Scene::addEntity(const std::string& entTag, EntityID parentEntityID)
 	{
 		EntityID entityID;
 		do {
@@ -40,6 +40,12 @@ namespace Coa {
 		
 		lastElementInsertionSort(entityVector);
 
+		if (parentEntityID != -1 && entityComponentTable.find(parentEntityID) != entityComponentTable.end())
+		{
+			entityComponentTable.at(parentEntityID).childrenIDs.insert(entityID);
+			entityComponentTable.at(entityID).parentID = parentEntityID;
+		}
+
 		return newEntity;
 	}
 
@@ -48,10 +54,21 @@ namespace Coa {
 		if (!entityExists(entityID))
 			return;
 
-		auto& entityComponents = entityComponentTable.at(entityID); // Vector containing bitset and component indices for entity with given ID
+		EntityEntry& entityEntry = entityComponentTable.at(entityID);
+
+		if (entityEntry.parentID != -1)
+		{
+			entityComponentTable.at(entityEntry.parentID).childrenIDs.erase(entityID);
+		}
+
+		for (EntityID childrenIDs : entityEntry.childrenIDs)
+		{
+			removeEntity(childrenIDs);
+		}
+
 		for (ComponentID i = 0; i < MAX_COMPONENTS; i++)
 		{
-			if (entityComponents.first.test(i))
+			if (entityEntry.componentsBitset.test(i))
 			{
 				(this->*componentDB.getBaseComponentVectorByID(i).getRemoveComponentFunctionPointer())(entityID);
 			}
@@ -83,4 +100,19 @@ namespace Coa {
 	{
 		return entityComponentTable.find(entityID) != entityComponentTable.end();
 	}
+
+    const std::unordered_set<EntityID>& Scene::getEntityChildren(EntityID entityID) const
+    {
+		assert(entityExists(entityID));
+
+		return entityComponentTable.at(entityID).childrenIDs;
+    }
+
+    const EntityID Scene::getEntityParent(EntityID entityID) const
+    {
+        if (!entityExists(entityID))
+			return -1;
+
+		return entityComponentTable.at(entityID).parentID;
+    }
 }

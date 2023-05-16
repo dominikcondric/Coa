@@ -27,7 +27,7 @@ namespace Coa {
             const TransformComponent& transformComp = scene.getComponent<TransformComponent>(e);
 
             lightRenderer.pushLight(Cala::LightRenderer::Light(
-                (Cala::LightRenderer::Light::Type)lightComp.type, transformComp.transformation, lightComp.intensity, lightComp.color,
+                (Cala::LightRenderer::Light::Type)lightComp.type, getSceneGraphTransformation(Entity(&scene, e)), lightComp.intensity, lightComp.color,
                 lightComp.spotlightCutoff, lightComp.shadowCaster
             ));
         }
@@ -35,7 +35,6 @@ namespace Coa {
         for (const EntityID e : scene.getComponentEntityList<SkyboxComponent>())
         {
             SkyboxComponent& skyboxComp = scene.getComponent<SkyboxComponent>(e);
-            const TransformComponent& transformComp = scene.getComponent<TransformComponent>(e);
 
             if (skyboxComp.active)
             {
@@ -48,7 +47,8 @@ namespace Coa {
         for (const EntityID e : scene.getComponentEntityList<MeshComponent>())
         {
             const MeshComponent& renderingComp = scene.getComponent<MeshComponent>(e);
-            const TransformComponent& transformComp = scene.getComponent<TransformComponent>(e);
+            Cala::Transformation transformation = getSceneGraphTransformation(Entity(&scene, e));
+            
             glm::vec4 color(1.f);
             if (scene.hasComponent<ColorComponent>(e))
                 color = scene.getComponent<ColorComponent>(e).color;
@@ -74,7 +74,7 @@ namespace Coa {
             {
                 MaterialCoefficients materialCoefficients = generateMaterialCoefficents(renderingComp.material);
                 lightRenderer.pushRenderable(Cala::LightRenderer::Renderable(
-                    renderingComp.mesh, transformComp.transformation, color,
+                    renderingComp.mesh, transformation, color,
                     diffuseMap, nullptr, nullptr, materialCoefficients.ambient,
                     materialCoefficients.diffuse, materialCoefficients.specular, materialCoefficients.shininess
                 ));
@@ -82,7 +82,7 @@ namespace Coa {
             else
             {
                 simpleRenderer.pushRenderable(Cala::SimpleRenderer::Renderable(
-                    renderingComp.mesh, transformComp.transformation, color
+                    renderingComp.mesh, transformation, color
                 ));
             }
         }
@@ -125,5 +125,22 @@ namespace Coa {
         }
 
         return coefficients;
+    }
+
+    Cala::Transformation RenderingSystem::getSceneGraphTransformation(Entity entity) const
+    {
+        if (entity.getParent().getEntityID() == -1)
+            return entity.getComponent<TransformComponent>().transformation;
+
+        Cala::Transformation transformation = entity.getComponent<TransformComponent>().transformation;
+        const Cala::Transformation& parentTransform = getSceneGraphTransformation(entity.getParent());
+        transformation.translate(parentTransform.getTranslation());
+        transformation.scale(parentTransform.getScale());
+        transformation.rotate(
+            transformation.getRotationQuat().x,
+            glm::vec3(transformation.getRotationQuat().y, transformation.getRotationQuat().z, transformation.getRotationQuat().w)
+        );
+
+        return transformation;
     }
 }

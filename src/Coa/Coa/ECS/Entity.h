@@ -1,6 +1,7 @@
 #pragma once 
 #include <vector>
 #include "TypeAliases.h"
+#include <unordered_set>
 
 namespace Coa {
 	class Scene;
@@ -20,6 +21,8 @@ namespace Coa {
 		template<class T> void shareComponent(const Entity& other) const;
 		template<class T> void removeComponent();
 		EntityID getEntityID() const { return entityID; }
+		Entity getParent() const;
+		const std::unordered_set<EntityID>& getChildren() const;
 		
 
 		bool operator==(const Entity& other) const
