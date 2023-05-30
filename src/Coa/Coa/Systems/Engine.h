@@ -9,10 +9,11 @@ namespace Coa {
         ~Engine() = default;
         void run(Scene& scene);
 
+        // Adds system to the engine, but it DOES NOT transfer ownership!
         void addSystem(ISystem* system, uint32_t priority = 0);
 
     private:
-        std::vector<std::unique_ptr<ISystem>> systems;
+        std::vector<ISystem*> systems;
     };
 
     

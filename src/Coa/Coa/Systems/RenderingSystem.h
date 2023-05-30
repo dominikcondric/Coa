@@ -2,6 +2,7 @@
 #include "Cala/Rendering/Renderers/LightRenderer.h"
 #include "Cala/Rendering/Renderers/SimpleRenderer.h"
 #include "Cala/Rendering/Renderers/SkyboxRenderer.h"
+#include "Coa/ECS/Components/MeshComponent.h"
 #include "ISystem.h"
 #include "Coa/ECS/Entity.h"
 

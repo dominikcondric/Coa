@@ -1,8 +1,9 @@
 #include "Scene.h"
 #include "ConsistentComponentVector.h"
 #include "Entity.h"
-#include "Components.h"
 #include <glm/gtc/random.hpp>
+#include "Components/TagComponent.h"
+#include "Components/TransformComponent.h"
 #include <iostream>
 
 namespace Coa {

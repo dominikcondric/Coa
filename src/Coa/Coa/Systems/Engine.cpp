@@ -13,11 +13,11 @@ namespace Coa {
     {
         if (priority < systems.size())
         {
-            systems.emplace(systems.begin() + priority, system);
+            systems.insert(systems.begin() + priority, system);
         }
         else
         {
-            systems.emplace_back(system);
+            systems.push_back(system);
         }
     }
 }

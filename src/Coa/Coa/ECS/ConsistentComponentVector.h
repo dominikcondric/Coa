@@ -1,6 +1,6 @@
 #pragma once
 #include "Coa/Utility/ConsistentVector.h"
-#include "Components.h"
+#include "Components/ComponentEntity.h"
 
 namespace Coa {
 	class BaseConsistentComponentVector {

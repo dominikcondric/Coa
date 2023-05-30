@@ -7,7 +7,30 @@ if (${BUILD_COA_DEMO})
         main.cpp
     )
 
+    target_compile_definitions(CoaDemo
+        PRIVATE
+            OUTPUT_DIR="${CMAKE_CURRENT_BINARY_DIR}"
+    )
+
     target_link_libraries(CoaDemo
+        PRIVATE
+            Coa
+    )
+
+    add_library(CoaDemoScripts
+        SHARED
+            Scripts/LightIntensityChangeScript.h
+            Scripts/LightIntensityChangeScript.cpp
+            Scripts/CameraMovementScript.h
+            Scripts/CameraMovementScript.cpp
+    )
+
+    target_compile_definitions(CoaDemoScripts
+        PRIVATE
+            COA_BUILD_DLL
+    )
+
+    target_link_libraries(CoaDemoScripts
         PRIVATE
             Coa
     )

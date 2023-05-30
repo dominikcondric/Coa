@@ -1,5 +1,11 @@
 #include "RenderingSystem.h"
 #include "Cala/Utility/Logger.h"
+#include "Coa/ECS/Components/CameraComponent.h"
+#include "Coa/ECS/Components/LightComponent.h"
+#include "Coa/ECS/Components/TextureComponent.h"
+#include "Coa/ECS/Components/TransformComponent.h"
+#include "Coa/ECS/Components/SkyboxComponent.h"
+#include "Coa/ECS/Components/ColorComponent.h"
 
 namespace Coa {
     RenderingSystem::RenderingSystem(Cala::GraphicsAPI *const _api, Cala::Framebuffer* _renderingTarget) 

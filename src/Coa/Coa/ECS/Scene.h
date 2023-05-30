@@ -33,7 +33,7 @@ namespace Coa {
 		template<class T> void removeComponent(EntityID entityID);
 
 	private:
-		static const int MAX_COMPONENTS = 8;
+		static const int MAX_COMPONENTS = 9;
 
 		// Component managing
 		mutable ComponentDatabase componentDB;
