@@ -4,7 +4,7 @@
 
 namespace Coa {
     struct ColorComponent : public Component {
-        ColorComponent(const glm::vec4& _color) : color(_color) {}
+        ColorComponent(const glm::vec4& _color = glm::vec4(1.f)) : color(_color) {}
         glm::vec4 color;
     };
 }

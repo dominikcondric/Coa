@@ -20,6 +20,7 @@ namespace Coa {
             const CameraComponent& cameraComp = scene.getComponent<CameraComponent>(e);
             if (cameraComp.isMain)
             {
+                helperGridRenderer.setupCamera(cameraComp.camera);
                 simpleRenderer.setupCamera(cameraComp.camera);
                 lightRenderer.setupCamera(cameraComp.camera);
                 skyboxRenderer.setupCamera(cameraComp.camera);
@@ -48,7 +49,6 @@ namespace Coa {
                 break;
             }
         }
-
 
         for (const EntityID e : scene.getComponentEntityList<MeshComponent>())
         {
@@ -93,16 +93,15 @@ namespace Coa {
             }
         }
 
-        simpleRenderer.render(api, renderingTarget);
+
+        if (renderHelperGrid)
+            helperGridRenderer.render(api, renderingTarget);
+            
         lightRenderer.render(api, renderingTarget);
+        simpleRenderer.render(api, renderingTarget);
         skyboxRenderer.render(api, renderingTarget);
     }
     
-    void RenderingSystem::setShadows(bool shadows)
-    {
-        lightRenderer.shadows = shadows;
-    }
-
     RenderingSystem::MaterialCoefficients RenderingSystem::generateMaterialCoefficents(Coa::MeshComponent::Material material)
     {
         MaterialCoefficients coefficients;

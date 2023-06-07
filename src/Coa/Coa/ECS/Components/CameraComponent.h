@@ -4,7 +4,7 @@
 
 namespace Coa {
     struct CameraComponent : public Component {
-        CameraComponent(Cala::Camera::Type cameraType) : camera(cameraType) {}
+        CameraComponent(Cala::Camera::Type cameraType = Cala::Camera::Type::Perspective) : camera(cameraType) {}
         CameraComponent(CameraComponent &&) noexcept = default;
         CameraComponent &operator=(CameraComponent &&) noexcept = default;
         ~CameraComponent() override = default;

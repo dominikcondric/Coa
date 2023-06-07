@@ -3,6 +3,8 @@
 #include <typeinfo>
 #include "TypeAliases.h"
 #include <memory>
+#include <vector>
+#include <cassert>
 
 namespace Coa {
 	class BaseConsistentComponentVector;
@@ -15,16 +17,18 @@ namespace Coa {
 
 		template<typename T> ConsistentComponentVector<T>& getComponentList();
 		template<typename T> std::vector<EntityID>& getComponentEntityList();
-		template<typename T> ComponentID getComponentID();
+		template<typename T> ComponentID getComponentID() const;
 
 		std::vector<EntityID>& getComponentEntityListByID(ComponentID compID)
 		{
 			return componentEntityList[compID];
 		}
 
+		bool componentIDExists(ComponentID componentID) const { return componentID < componentIDMap.size(); }
+
 		BaseConsistentComponentVector& getBaseComponentVectorByID(ComponentID compID) 
 		{
-			assert((std::size_t)compID < componentList.size()); 
+			assert((std::size_t)compID < componentList.size());
 			return *componentList[compID]; 
 		}
 
@@ -37,25 +41,8 @@ namespace Coa {
 	template<typename T>
 	inline ConsistentComponentVector<T>& ComponentDatabase::getComponentList()
 	{
-		return *dynamic_cast<ConsistentComponentVector<T>*>(componentList[getComponentID<T>()].get());
-	}
-
-	template<typename T>
-	inline std::vector<EntityID>& ComponentDatabase::getComponentEntityList()
-	{
-		return componentEntityList[getComponentID<T>()];
-	}
-
-	template<typename T>
-	inline ComponentID ComponentDatabase::getComponentID()
-	{
-		const auto componentsMapIterator = componentIDMap.find(typeid(T).hash_code());
-		ComponentID compID;
-		if (componentsMapIterator != componentIDMap.end())
-		{
-			compID = componentsMapIterator->second;
-		}
-		else
+		ComponentID compID = getComponentID<T>();
+		if (compID == -1)
 		{
 			compID = (ComponentID)componentList.size();
 			componentIDMap.insert(std::make_pair(typeid(T).hash_code(), compID));
@@ -63,6 +50,31 @@ namespace Coa {
 			componentEntityList.emplace_back();
 		}
 
-		return compID;
+		return *dynamic_cast<ConsistentComponentVector<T>*>(componentList[compID].get());
+	}
+
+	template<typename T>
+	inline std::vector<EntityID>& ComponentDatabase::getComponentEntityList()
+	{
+		ComponentID compID = getComponentID<T>();
+		if (compID == -1)
+		{
+			compID = (ComponentID)componentList.size();
+			componentIDMap.insert(std::make_pair(typeid(T).hash_code(), compID));
+			componentList.emplace_back(std::make_unique<ConsistentComponentVector<T>>());
+			componentEntityList.emplace_back();
+		}
+
+		return componentEntityList[compID];
+	}
+
+	template<typename T>
+	inline ComponentID ComponentDatabase::getComponentID() const
+	{
+		const auto componentsMapIterator = componentIDMap.find(typeid(T).hash_code());
+		if (componentsMapIterator != componentIDMap.end())
+			return componentsMapIterator->second;
+
+		return -1;
 	}
 }

@@ -2,6 +2,7 @@
 #include "ConsistentComponentVector.h"
 #include <algorithm>
 #include "Cala/Utility/Logger.h"
+#include "Entity.h"
 
 namespace Coa {
 	template<class T>
@@ -11,10 +12,10 @@ namespace Coa {
 		static_assert(!std::is_abstract<T>(), "T is abstract!");
 
 		ComponentID componentID = componentDB.getComponentID<T>();
-		assert(hasComponent<T>(entityID) && "Component doesn't exist!");
+		assert(componentID != -1 && hasComponent<T>(entityID) && "Component doesn't exist!");
 
 		ConsistentComponentVector<T>& components = componentDB.getComponentList<T>();
-		return components.vector[entityComponentTable.at(entityID).componentsIndices[componentID]].component;
+		return components[entityComponentTable.at(entityID).componentsIndices[componentID]].component;
 	}
 
 	template<class T>
@@ -24,7 +25,7 @@ namespace Coa {
 		static_assert(!std::is_abstract<T>(), "T is abstract!");
 
 		ComponentID componentID = componentDB.getComponentID<T>();
-		assert(hasComponent<T>(entityID) && "Component doesn't exist!");
+		assert(componentID != -1 && hasComponent<T>(entityID) && "Component doesn't exist!");
 
 		const ConsistentComponentVector<T>& components = componentDB.getComponentList<T>();
 		return components.vector[entityComponentTable.at(entityID).componentsIndices[componentID]].component;
@@ -36,7 +37,7 @@ namespace Coa {
 		static_assert(std::is_base_of<Component, T>(), "T is not derived from Component!");
 		static_assert(!std::is_abstract<T>(), "T is abstract!");
 		
-		assert(componentDB.getComponentID<T>() != -1);
+		ComponentID compID = componentDB.getComponentID<T>();
 		return IterableVector<EntityID>(componentDB.getComponentEntityList<T>());
 	}
 
@@ -47,7 +48,7 @@ namespace Coa {
 		static_assert(!std::is_abstract<T>(), "T is abstract!");
 
 		ComponentID componentID = componentDB.getComponentID<T>();
-		if (hasComponent<T>(entityID))
+		if (componentID != -1 && hasComponent<T>(entityID))
 		{
 			Cala::Logger::getInstance().logErrorToConsole("Entity already has requested component!");
 			return;
@@ -56,7 +57,9 @@ namespace Coa {
 		// Adding new component and entity to per-component entity list
 		ConsistentComponentVector<T>& components = componentDB.getComponentList<T>();
 		std::vector<EntityID>& componentEntityList = componentDB.getComponentEntityList<T>();
-		components.vector.emplace_back(entityID, std::forward<Args>(args)...);
+		components.emplaceBack(entityID, std::forward<Args>(args)...);
+
+		componentID = componentDB.getComponentID<T>();
 
 		// Adding entity to component table
 		componentEntityList.push_back(entityID);
@@ -64,7 +67,7 @@ namespace Coa {
 
 		// Modifying entity component table
 		entityComponentTable.at(entityID).componentsBitset.set(componentID, true);
-		entityComponentTable.at(entityID).componentsIndices[componentID] = (ComponentIndex)(components.vector.size() - 1);
+		entityComponentTable.at(entityID).componentsIndices[componentID] = (ComponentIndex)(components.size() - 1);
 	}
 
 	template<class T, typename ...Args>
@@ -80,13 +83,13 @@ namespace Coa {
 		static_assert(std::is_base_of<Component, T>(), "T is not derived from Component!");
 		static_assert(!std::is_abstract<T>(), "T is abstract!");
 
-		if(!hasComponent<T>(sharingEntityID))
+		ComponentID componentID = componentDB.getComponentID<T>();
+		if(componentID == -1 || !hasComponent<T>(sharingEntityID))
 		{
 			Cala::Logger::getInstance().logErrorToConsole("Sharing entity doesn't have requested component!");
 			return;
 		}
 
-		ComponentID componentID = componentDB.getComponentID<T>();
 		if(hasComponent<T>(receivingEntityID))
 		{
 			Cala::Logger::getInstance().logErrorToConsole("Receiving entity already has requested component!");
@@ -100,8 +103,8 @@ namespace Coa {
 
 		// Adding entity to per-component entities list
 		ConsistentComponentVector<T>& components = componentDB.getComponentList<T>();
-		components.vector[sharingComponentIndex].entities.push_back(receivingEntityID);
-		std::sort(components.vector[sharingComponentIndex].entities.begin(), components.vector[sharingComponentIndex].entities.end());
+		components[sharingComponentIndex].entities.push_back(receivingEntityID);
+		std::sort(components[sharingComponentIndex].entities.begin(), components[sharingComponentIndex].entities.end());
 
 		// Adding entity to component entity list
 		std::vector<EntityID>& componentEntityList = componentDB.getComponentEntityList<T>();
@@ -117,7 +120,7 @@ namespace Coa {
 		assert(entityExists(entityID));
 
 		const auto& entCompTable = entityComponentTable.at(entityID).componentsBitset;
-		return entCompTable.test(componentDB.getComponentID<T>());
+		return componentDB.getComponentID<T>() != -1 && entCompTable.test(componentDB.getComponentID<T>());
 	}
 
 	template<class T>
@@ -127,14 +130,14 @@ namespace Coa {
 		static_assert(!std::is_abstract<T>(), "T is abstract!");
 
 		ComponentID componentID = componentDB.getComponentID<T>();
-		if (!hasComponent<T>(entityID))
+		if (componentID == -1 || !hasComponent<T>(entityID))
 			return;
 
 		ConsistentComponentVector<T>& components = componentDB.getComponentList<T>();
 		ComponentIndex componentIndex = entityComponentTable.at(entityID).componentsIndices[componentID];
 
 		// Erasing entity from per-component entity list
-		std::vector<EntityID>& componentEntities = components.vector[componentIndex].entities; // all entities sharing this component
+		std::vector<EntityID>& componentEntities = components[componentIndex].entities; // all entities sharing this component
 		componentEntities.erase(std::lower_bound(componentEntities.begin(), componentEntities.end(), entityID));
 
 		// Erasing entity from component entity list
@@ -147,9 +150,9 @@ namespace Coa {
 			components.erase(componentIndex);
 			 
 			// Adjust per-entity component indices for swapped component if neccessary
-			if (!components.vector.empty() && (std::size_t)componentIndex != components.vector.size())
+			if (!components.empty() && (std::size_t)componentIndex != components.size())
 			{
-				for (EntityID entity : components.vector[componentIndex].entities)
+				for (EntityID entity : components[componentIndex].entities)
 				{
 					entityComponentTable.at(entity).componentsIndices[componentID] = componentIndex;
 				}
@@ -159,5 +162,21 @@ namespace Coa {
 		// Modifying entity component table
 		entityComponentTable.at(entityID).componentsBitset.set(componentID, false);
 		entityComponentTable.at(entityID).componentsIndices[componentID] = -1;
+	}
+
+	template<typename T>
+	inline void Scene::addOtherSceneComponent(Entity newEntity, Entity entity)
+	{
+		if (entity.hasComponent<T>())
+		{
+			if (!newEntity.hasComponent<T>())
+			{
+				newEntity.addComponent<T>() = std::move(entity.getComponent<T>());
+			}
+			else
+			{
+				newEntity.getComponent<T>() = std::move(entity.getComponent<T>());
+			}
+		}
 	}
 }

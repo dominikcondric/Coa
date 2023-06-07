@@ -76,11 +76,12 @@ void DemoApplication::setInitialScene()
     Entity lightEntity = scene.addEntity("light");
     lightEntity.addComponent<LightComponent>();
     MeshComponent& meshComponent = lightEntity.addComponent<MeshComponent>(Cala::Model().loadSphere(5, 10), false);
+    meshComponent.mesh.cullingEnabled = true;
     lightEntity.getComponent<TransformComponent>().transformation.translate(glm::vec3(0.f, 4.f, 0.f)).scale(0.2f);
-    lightEntity.addComponent<ScriptComponent>().loadScript(library, "LightIntensityChangeScript");
+    lightEntity.addComponent<ScriptComponent>().loadScript(library, "MainLightScript");
 
-    Entity sphereEntity = scene.addEntity("first sphere");
-    sphereEntity.addComponent<MeshComponent>(Cala::Model().loadSphere());
+    Entity sphereEntity = scene.addEntity("First sphere");
+    sphereEntity.addComponent<MeshComponent>(Cala::Model().loadSphere()).mesh.cullingEnabled = true;
     sphereEntity.getComponent<TransformComponent>().transformation.translate(glm::vec3(10.f, 10.f, 0.f));
 
     for (int i = 0; i < 30; ++i)
@@ -93,9 +94,12 @@ void DemoApplication::setInitialScene()
     }
 
     renderingSystem.reset(new RenderingSystem(api.get()));
-    renderingSystem->setShadows(false);
+    renderingSystem->getHelperGridRenderer().gridColor = glm::vec4(.9f, .7f, .2f, 1.f);
     engine.addSystem(renderingSystem.get());
 
     scriptingSystem.reset(new ScriptingSystem(window->getIO()));
     engine.addSystem(scriptingSystem.get());
+
+    sceneManagementSystem.reset(new SceneManagementSystem());
+    engine.addSystem(sceneManagementSystem.get());
 }

@@ -4,7 +4,6 @@
 #include <glm/gtc/random.hpp>
 #include "Components/TagComponent.h"
 #include "Components/TransformComponent.h"
-#include <iostream>
 
 namespace Coa {
 	Entity Scene::addEntity(const std::string& entTag, EntityID parentEntityID)
@@ -97,7 +96,47 @@ namespace Coa {
 		}
 	}
 
-	bool Scene::entityExists(EntityID entityID) const
+    void Scene::append(Scene& other)
+    {
+		/*
+		 For every entity, add it to scene and remove it from other scene,
+		 but do not destroy its components because it would delete their 
+		 graphics handles
+		*/
+
+		std::unordered_map<EntityID, EntityID> entityIDMappings;
+		for (Entity entity : other.entityVector)
+		{
+			// Skip entities which have a parent
+			if (entity.getParent().getEntityID() != -1)
+				continue;
+
+			appendSingleEntity(entityIDMappings, other, entity);
+		}
+    }
+
+	void Scene::appendSingleEntity(std::unordered_map<EntityID, EntityID>& entityIDMappings, Scene &other, Entity entity)
+    {
+		EntityID parentEntityID = -1;
+		if (entity.getParent().getEntityID() != -1)
+			parentEntityID = entityIDMappings.at(entity.getParent().getEntityID());
+
+		Entity newEntity = addEntity("", parentEntityID);
+		entityIDMappings.insert({ entity.getEntityID(), newEntity.getEntityID() });
+
+		for (ComponentID id = 0; id < MAX_COMPONENTS; ++id)
+		{
+			if (other.componentDB.componentIDExists(id))
+			{
+				(this->*other.componentDB.getBaseComponentVectorByID(id).getAddOtherSceneComponentFunctionPointer())(newEntity, entity);
+			}
+		}
+
+		for (EntityID child : entity.getChildren())
+			appendSingleEntity(entityIDMappings, other, Entity(&other, child));
+    }
+
+    bool Scene::entityExists(EntityID entityID) const
 	{
 		return entityComponentTable.find(entityID) != entityComponentTable.end();
 	}

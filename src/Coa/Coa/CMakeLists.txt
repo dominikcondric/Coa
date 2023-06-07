@@ -18,6 +18,7 @@ set(coa_src_files
     ECS/Components/LightComponent.h
     ECS/Components/TagComponent.h
     ECS/Components/SkyboxComponent.h
+    ECS/Components/DestroyEntityComponent.h
     ECS/Components/CameraComponent.h
     ECS/Components/ComponentEntity.h
     
@@ -27,6 +28,7 @@ set(coa_src_files
     Utility/SharedLibrary.cpp
 
     Systems/ISystem.h Systems/ISystem.cpp
+    Systems/SceneManagementSystem.h Systems/SceneManagementSystem.cpp
     Systems/RenderingSystem.h Systems/RenderingSystem.cpp
     Systems/ScriptingSystem.h Systems/ScriptingSystem.cpp
     Systems/Engine.h Systems/Engine.cpp

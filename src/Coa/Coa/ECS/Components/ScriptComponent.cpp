@@ -1,5 +1,4 @@
 #include "ScriptComponent.h"
-#include <iostream>
 
 #include "Cala/Utility/Platform.h"
 #ifdef CALA_PLATFORM_WINDOWS
@@ -31,10 +30,5 @@ namespace Coa {
         std::string functionName = "load" + className;
         auto scriptFactoryFunction = library.loadFunction<Script*>(functionName.c_str());
         script = scriptFactoryFunction();
-    }
-
-    void ScriptComponent::executeScript(Entity entity, const Cala::IIOSystem &io, float deltaTime)
-    {
-        script->execute(entity, io, deltaTime);
     }
 }

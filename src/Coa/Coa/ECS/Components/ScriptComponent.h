@@ -4,6 +4,8 @@
 #include "Coa/Utility/SharedLibrary.h"
 #include "Coa/ECS/Entity.h"
 #include "Cala/Utility/Platform.h"
+#include "Cala/Rendering/GraphicsAPI.h"
+
 
 #ifdef CALA_PLATFORM_WINDOWS
     #ifdef COA_BUILD_DLL
@@ -16,12 +18,24 @@
 #endif
 
 namespace Coa {
+    class Scene;
+
     struct ScriptComponent : public Component {
         class COA_DLL Script {
         public:
-            Script() = default;
+            Script()
+            {
+                /*
+                 It is necessary to load API functions because
+                 outside process that calls the script, 
+                 global symbols (such as OpenGL state symbols) are not visible
+                */ 
+                Cala::GraphicsAPI::loadAPIFunctions();
+            }
+
             virtual ~Script() = default;
             virtual void execute(Entity entity, const Cala::IIOSystem& io, float deltaTime) = 0;
+            virtual void loadNewEntities(Scene& scene) { /* Empty definition */ };
         };
     
         ScriptComponent() = default;
@@ -30,7 +44,12 @@ namespace Coa {
         ScriptComponent& operator=(ScriptComponent&& other) noexcept;
         ~ScriptComponent() { delete script; }
         void loadScript(const SharedLibrary& library, const std::string& _className);
-        void executeScript(Entity entity, const Cala::IIOSystem& io, float deltaTime);
+        Script* getScript() const { return script; };
+        const std::string& getSharedLibraryPath() const { return sharedLibraryPath; }
+        const std::string& getClassName() const { return className; }
+
+    public:
+        bool shouldLoadNewEntities = false;
 
     private:
         Script* script = nullptr;

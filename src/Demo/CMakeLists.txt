@@ -19,8 +19,8 @@ if (${BUILD_COA_DEMO})
 
     add_library(CoaDemoScripts
         SHARED
-            Scripts/LightIntensityChangeScript.h
-            Scripts/LightIntensityChangeScript.cpp
+            Scripts/MainLightScript.h
+            Scripts/MainLightScript.cpp
             Scripts/CameraMovementScript.h
             Scripts/CameraMovementScript.cpp
     )

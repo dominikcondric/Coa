@@ -18,6 +18,7 @@ namespace Coa {
         Entity addEntity(const std::string& entTag = "", EntityID parentEntityID = -1);
         void removeEntity(EntityID entityID);
         void clearEntities();
+		void append(Scene& other);
 		bool entityExists(EntityID entityID) const;
 		IterableVector<Entity> getEntities() { return IterableVector<Entity>(entityVector); }
 		const std::unordered_set<EntityID>& getEntityChildren(EntityID entityID) const;
@@ -33,7 +34,12 @@ namespace Coa {
 		template<class T> void removeComponent(EntityID entityID);
 
 	private:
-		static const int MAX_COMPONENTS = 9;
+		template<typename T> friend class ConsistentComponentVector; // Necessary to keep addOtherSceneComponent private while being able to access its function pointer from ConsistentComponentVector
+		template<typename T> void addOtherSceneComponent(Entity newEntity, Entity entity);
+		void appendSingleEntity(std::unordered_map<EntityID, EntityID>& appendedEntities, Scene& other, Entity entity);
+
+	private:
+		static const int MAX_COMPONENTS = 10;
 
 		// Component managing
 		mutable ComponentDatabase componentDB;
