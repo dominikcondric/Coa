@@ -6,7 +6,11 @@ namespace Coa {
     {
         for (auto entity : scene.getComponentEntityList<ScriptComponent>())
         {
-            scene.getComponent<ScriptComponent>(entity).getScript()->execute(
+            const ScriptComponent& scriptComponent = scene.getComponent<ScriptComponent>(entity);
+            if (scriptComponent.getScript() == nullptr)
+                continue;
+
+            scriptComponent.getScript()->execute(
                 Entity(&scene, entity),
                 io,
                 deltaTime

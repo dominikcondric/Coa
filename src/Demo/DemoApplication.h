@@ -18,7 +18,6 @@ public:
     void run();
 
 private:
-    SharedLibrary library;
     std::unique_ptr<Cala::IWindow> window;
     std::unique_ptr<Cala::GraphicsAPI> api;
     Engine engine;

@@ -23,8 +23,8 @@ namespace Coa {
         std::vector<EntityID> entitiesToDestroy;
         for (EntityID entity : scene.getComponentEntityList<DestroyEntityComponent>())
         {
-            const DestroyEntityComponent& newSceneComponent = scene.getComponent<DestroyEntityComponent>(entity);
-            if (newSceneComponent.destroy)
+            const DestroyEntityComponent& destroyEntityComponent = scene.getComponent<DestroyEntityComponent>(entity);
+            if (destroyEntityComponent.destroy)
                 entitiesToDestroy.push_back(entity);
         }
 

@@ -45,7 +45,7 @@ namespace Coa {
         ~ScriptComponent() { delete script; }
         void loadScript(const SharedLibrary& library, const std::string& _className);
         Script* getScript() const { return script; };
-        const std::string& getSharedLibraryPath() const { return sharedLibraryPath; }
+        const SharedLibrary& getSharedLibrary() const { return sharedLibrary; }
         const std::string& getClassName() const { return className; }
 
     public:
@@ -53,7 +53,7 @@ namespace Coa {
 
     private:
         Script* script = nullptr;
-        std::string sharedLibraryPath;
+        SharedLibrary sharedLibrary;
         std::string className;
     };
 }

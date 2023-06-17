@@ -20,15 +20,18 @@ namespace Coa {
     {
         script = other.script;
         other.script = nullptr;
+        sharedLibrary = std::move(other.sharedLibrary);
+        shouldLoadNewEntities = other.shouldLoadNewEntities;
+        className = other.className;
         return *this;
     }
 
     void ScriptComponent::loadScript(const SharedLibrary &library, const std::string& _className)
     {
         className = _className;
-        sharedLibraryPath = library.getPath();
+        sharedLibrary = library;
         std::string functionName = "load" + className;
-        auto scriptFactoryFunction = library.loadFunction<Script*>(functionName.c_str());
+        auto scriptFactoryFunction = sharedLibrary.loadFunction<Script*>(functionName.c_str());
         script = scriptFactoryFunction();
     }
 }

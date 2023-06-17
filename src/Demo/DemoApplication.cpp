@@ -17,8 +17,6 @@ DemoApplication::DemoApplication() :
 {
     api->setBufferClearingColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.f));
     api->setBufferClearingBits(true, true, true);
-
-    library.load(std::filesystem::path(OUTPUT_DIR) / "libCoaDemoScripts.dll");
 }
 
 DemoApplication::~DemoApplication()
@@ -64,6 +62,8 @@ void DemoApplication::loop()
 
 void DemoApplication::setInitialScene()
 {
+    SharedLibrary sharedLibrary(std::filesystem::path(OUTPUT_DIR) / "libCoaDemoScripts.dll");
+
     Entity cameraEntity = scene.addEntity("camera");
     Cala::Camera& cam = cameraEntity.addComponent<CameraComponent>(Cala::Camera::Type::Perspective).camera;
     cam.setProjectionAspectRatio(1024.f / 768.f);
@@ -71,14 +71,14 @@ void DemoApplication::setInitialScene()
     cam.setProjectionFarPlane(100.f);
     cam.setProjectionViewingAngle(45.f);
     cam.setPosition(glm::vec3(0.f, 20.f, 20.f));
-    cameraEntity.addComponent<ScriptComponent>(library, "CameraMovementScript");
+    cameraEntity.addComponent<ScriptComponent>(sharedLibrary, "CameraMovementScript");
 
     Entity lightEntity = scene.addEntity("light");
     lightEntity.addComponent<LightComponent>();
     MeshComponent& meshComponent = lightEntity.addComponent<MeshComponent>(Cala::Model().loadSphere(5, 10), false);
     meshComponent.mesh.cullingEnabled = true;
     lightEntity.getComponent<TransformComponent>().transformation.translate(glm::vec3(0.f, 4.f, 0.f)).scale(0.2f);
-    lightEntity.addComponent<ScriptComponent>().loadScript(library, "MainLightScript");
+    lightEntity.addComponent<ScriptComponent>().loadScript(sharedLibrary, "MainLightScript");
 
     Entity sphereEntity = scene.addEntity("First sphere");
     sphereEntity.addComponent<MeshComponent>(Cala::Model().loadSphere()).mesh.cullingEnabled = true;
