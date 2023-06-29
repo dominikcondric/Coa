@@ -43,7 +43,7 @@ namespace Coa {
         {
             SkyboxComponent& skyboxComp = scene.getComponent<SkyboxComponent>(e);
 
-            if (skyboxComp.active)
+            if (skyboxComp.active && skyboxComp.texture.isLoaded())
             {
                 skyboxRenderer.setTexture(&skyboxComp.texture);
                 break;

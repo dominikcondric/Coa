@@ -22,7 +22,10 @@ namespace Coa {
     {
         libraryHandle = other.libraryHandle;
         path = other.path;
-        openHandles.at(other.getPath()).second++;
+
+        if (!path.empty())
+            openHandles.at(path).second++;
+
         return *this;
     }
 
@@ -44,6 +47,7 @@ namespace Coa {
         if (!std::filesystem::exists(libraryPath))
             return;
 
+        path = libraryPath.string();
         if (openHandles.find(libraryPath.string()) != openHandles.end())
         {
             auto entry = openHandles.at(libraryPath.string());
@@ -56,7 +60,6 @@ namespace Coa {
             if (libraryPath.extension() != ".dll")
                 return;
 
-            path = libraryPath.string();
             libraryHandle = LoadLibrary(libraryPath.generic_string().c_str());
             openHandles.insert({ path, { libraryHandle, 1 }  });
         #endif
